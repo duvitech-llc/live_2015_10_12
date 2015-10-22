@@ -8,26 +8,54 @@ libgroupsock_LIB_SUFFIX = $(LIB_SUFFIX)
 ROOTDIR = /home/gvigelet/ti-dvsdk_dm368-evm_4_02_00_06
 include $(ROOTDIR)/Rules.make
 
+##### Change the following for your environment:
+# 'CURRENT':'REVISION':'AGE' are updated - whenever a library changes - as follows:
+# The library code changes, but without any changes to the API (i.e., interfaces) => increment REVISION
+# At least one interface changes, or is removed => CURRENT += 1; REVISION = 0; AGE = 0
+# One or more interfaces were added, but no existing interfaces were changed or removed => CURRENT += 1; REVISION = 0; AGE += 1
+
+libliveMedia_VERSION_CURRENT=51
+libliveMedia_VERSION_REVISION=1
+libliveMedia_VERSION_AGE=1
+libliveMedia_LIB_SUFFIX=so.$(shell expr $(libliveMedia_VERSION_CURRENT) - $(libliveMedia_VERSION_AGE)).$(libliveMedia_VERSION_AGE).$(libliveMedia_VERSION_REVISION)
+
+libBasicUsageEnvironment_VERSION_CURRENT=1
+libBasicUsageEnvironment_VERSION_REVISION=0
+libBasicUsageEnvironment_VERSION_AGE=0
+libBasicUsageEnvironment_LIB_SUFFIX=so.$(shell expr $(libBasicUsageEnvironment_VERSION_CURRENT) - $(libBasicUsageEnvironment_VERSION_AGE)).$(libBasicUsageEnvironment_VERSION_AGE).$(libBasicUsageEnvironment_VERSION_REVISION)
+
+libUsageEnvironment_VERSION_CURRENT=4
+libUsageEnvironment_VERSION_REVISION=0
+libUsageEnvironment_VERSION_AGE=1
+libUsageEnvironment_LIB_SUFFIX=so.$(shell expr $(libUsageEnvironment_VERSION_CURRENT) - $(libUsageEnvironment_VERSION_AGE)).$(libUsageEnvironment_VERSION_AGE).$(libUsageEnvironment_VERSION_REVISION)
+
+libgroupsock_VERSION_CURRENT=8
+libgroupsock_VERSION_REVISION=0
+libgroupsock_VERSION_AGE=0
+libgroupsock_LIB_SUFFIX=so.$(shell expr $(libgroupsock_VERSION_CURRENT) - $(libgroupsock_VERSION_AGE)).$(libgroupsock_VERSION_AGE).$(libgroupsock_VERSION_REVISION)
+#####
+
 CROSS_TOOLS_DIR=	/opt/arm-2009q1/bin
 CROSS_COMPILE?=		$(CROSS_TOOLS_DIR)/arm-none-linux-gnueabi-
-COMPILE_OPTS =		$(INCLUDES) -I. -O2 -DSOCKLEN_T=socklen_t -DNO_SSTREAM=1 -D_LARGEFILE_SOURCE=1 -D_FILE_OFFSET_BITS=64 -D ALLOW_RTSP_SERVER_PORT_REUSE=1
+COMPILE_OPTS =		$(INCLUDES) -I. -O2 -DSOCKLEN_T=socklen_t -D_LARGEFILE_SOURCE=1 -D_FILE_OFFSET_BITS=64 -fPIC -D ALLOW_RTSP_SERVER_PORT_REUSE=1
 C =			c
-C_COMPILER =		$(CROSS_COMPILE)gcc
-C_FLAGS =		$(COMPILE_OPTS)
+C_COMPILER =	$(CROSS_COMPILE)gcc
+C_FLAGS =		$(COMPILE_OPTS) $(CPPFLAGS) $(CFLAGS)
 CPP =			cpp
 CPLUSPLUS_COMPILER =	$(CROSS_COMPILE)g++
-CPLUSPLUS_FLAGS =	$(COMPILE_OPTS) -Wall -DBSD=1
+CPLUSPLUS_FLAGS =	$(COMPILE_OPTS) -Wall -DBSD=1 $(CPPFLAGS) $(CXXFLAGS)
 OBJ =			o
 LINK =			$(CROSS_COMPILE)g++ -o
-LINK_OPTS =		
+LINK_OPTS =		-L. $(LDFLAGS)
 CONSOLE_LINK_OPTS =	$(LINK_OPTS)
-LIBRARY_LINK =		$(CROSS_COMPILE)ar cr 
-LIBRARY_LINK_OPTS =	$(LINK_OPTS)
-LIB_SUFFIX =			a
+LIBRARY_LINK =		$(CROSS_COMPILE)gcc -o 
+SHORT_LIB_SUFFIX =	so.$(shell expr $($(NAME)_VERSION_CURRENT) - $($(NAME)_VERSION_AGE))
+LIB_SUFFIX =	 	$(SHORT_LIB_SUFFIX).$($(NAME)_VERSION_AGE).$($(NAME)_VERSION_REVISION)
+LIBRARY_LINK_OPTS =	-shared -Wl,-soname,$(NAME).$(SHORT_LIB_SUFFIX) $(LDFLAGS)
 LIBS_FOR_CONSOLE_APPLICATION =
 LIBS_FOR_GUI_APPLICATION =
 EXE =
-##### End of variables to change
+INSTALL2 =		install_shared_libraries##### End of variables to change
 
 MULTICAST_STREAMER_APPS = testMP3Streamer$(EXE) testMPEG1or2VideoStreamer$(EXE) testMPEG1or2AudioVideoStreamer$(EXE) testMPEG2TransportStreamer$(EXE) testMPEG4VideoStreamer$(EXE) testH264VideoStreamer$(EXE) testH265VideoStreamer$(EXE) testDVVideoStreamer$(EXE) testWAVAudioStreamer$(EXE) testAMRAudioStreamer$(EXE) testMKVStreamer$(EXE) testOggStreamer$(EXE) vobStreamer$(EXE)
 MULTICAST_RECEIVER_APPS = testMP3Receiver$(EXE) testMPEG1or2VideoReceiver$(EXE) testMPEG2TransportReceiver$(EXE) sapWatch$(EXE)
